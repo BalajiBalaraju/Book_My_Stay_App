@@ -1,7 +1,6 @@
-// Version 3.1 - Centralized Inventory using HashMap
+// Version 4.1 - Room Search & Availability Check
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 // Abstract Room Class
 abstract class Room {
@@ -68,17 +67,14 @@ class SuiteRoom extends Room {
     }
 }
 
-// Centralized Inventory Class
+// Inventory Class (Read-only usage here)
 class RoomInventory {
-
     private HashMap<String, Integer> inventory;
 
     public RoomInventory() {
         inventory = new HashMap<>();
-
-        // Initial availability
         inventory.put("Single Room", 10);
-        inventory.put("Double Room", 5);
+        inventory.put("Double Room", 0); // unavailable
         inventory.put("Suite Room", 2);
     }
 
@@ -86,20 +82,29 @@ class RoomInventory {
         return inventory.getOrDefault(roomType, 0);
     }
 
-    public void updateAvailability(String roomType, int count) {
-        if (inventory.containsKey(roomType)) {
-            inventory.put(roomType, count);
-        } else {
-            System.out.println("Room type not found!");
-        }
+    public Set<String> getAllRoomTypes() {
+        return inventory.keySet();
     }
+}
 
-    public void displayInventory() {
-        System.out.println("=== Current Room Inventory ===");
-        for (Map.Entry<String, Integer> entry : inventory.entrySet()) {
-            System.out.println(entry.getKey() + " → Available: " + entry.getValue());
+// Search Service (READ ONLY)
+class RoomSearchService {
+
+    public void searchAvailableRooms(RoomInventory inventory, List<Room> rooms) {
+
+        System.out.println("=== Available Rooms ===\n");
+
+        for (Room room : rooms) {
+            int available = inventory.getAvailability(room.getRoomType());
+
+            // Show only available rooms
+            if (available > 0) {
+                room.displayDetails();
+                System.out.println("Available: " + available + "\n");
+            }
         }
-        System.out.println();
+
+        System.out.println("=== End of Search ===");
     }
 }
 
@@ -107,36 +112,19 @@ class RoomInventory {
 public class BookMyStayApp {
     public static void main(String[] args) {
 
-        // Room objects
-        Room single = new SingleRoom();
-        Room doubleRoom = new DoubleRoom();
-        Room suite = new SuiteRoom();
+        // Room list
+        List<Room> rooms = new ArrayList<>();
+        rooms.add(new SingleRoom());
+        rooms.add(new DoubleRoom());
+        rooms.add(new SuiteRoom());
 
-        // Inventory initialization
+        // Inventory
         RoomInventory inventory = new RoomInventory();
 
-        // Display room details
-        System.out.println("=== Room Details ===\n");
+        // Search Service
+        RoomSearchService searchService = new RoomSearchService();
 
-        single.displayDetails();
-        System.out.println();
-
-        doubleRoom.displayDetails();
-        System.out.println();
-
-        suite.displayDetails();
-        System.out.println();
-
-        // Display inventory
-        inventory.displayInventory();
-
-        // Update example
-        System.out.println("Updating Single Room availability to 8...\n");
-        inventory.updateAvailability("Single Room", 8);
-
-        // Display updated inventory
-        inventory.displayInventory();
-
-        System.out.println("=== End of Program ===");
+        // Perform search (NO state change)
+        searchService.searchAvailableRooms(inventory, rooms);
     }
 }
