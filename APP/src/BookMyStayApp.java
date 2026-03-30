@@ -1,6 +1,9 @@
-// Version 2.1 - Refactored Implementation
+// Version 3.1 - Centralized Inventory using HashMap
 
-// Abstract Class
+import java.util.HashMap;
+import java.util.Map;
+
+// Abstract Room Class
 abstract class Room {
     private int beds;
     private double size;
@@ -34,7 +37,7 @@ abstract class Room {
     }
 }
 
-// Single Room
+// Concrete Room Types
 class SingleRoom extends Room {
     public SingleRoom() {
         super(1, 200, 1500);
@@ -45,7 +48,6 @@ class SingleRoom extends Room {
     }
 }
 
-// Double Room
 class DoubleRoom extends Room {
     public DoubleRoom() {
         super(2, 350, 2500);
@@ -56,7 +58,6 @@ class DoubleRoom extends Room {
     }
 }
 
-// Suite Room
 class SuiteRoom extends Room {
     public SuiteRoom() {
         super(3, 600, 5000);
@@ -67,30 +68,74 @@ class SuiteRoom extends Room {
     }
 }
 
-// Main Class (Your Required Structure)
+// Centralized Inventory Class
+class RoomInventory {
+
+    private HashMap<String, Integer> inventory;
+
+    public RoomInventory() {
+        inventory = new HashMap<>();
+
+        // Initial availability
+        inventory.put("Single Room", 10);
+        inventory.put("Double Room", 5);
+        inventory.put("Suite Room", 2);
+    }
+
+    public int getAvailability(String roomType) {
+        return inventory.getOrDefault(roomType, 0);
+    }
+
+    public void updateAvailability(String roomType, int count) {
+        if (inventory.containsKey(roomType)) {
+            inventory.put(roomType, count);
+        } else {
+            System.out.println("Room type not found!");
+        }
+    }
+
+    public void displayInventory() {
+        System.out.println("=== Current Room Inventory ===");
+        for (Map.Entry<String, Integer> entry : inventory.entrySet()) {
+            System.out.println(entry.getKey() + " → Available: " + entry.getValue());
+        }
+        System.out.println();
+    }
+}
+
+// Main Class (Your Structure)
 public class BookMyStayApp {
     public static void main(String[] args) {
 
-        // Polymorphism
+        // Room objects
         Room single = new SingleRoom();
         Room doubleRoom = new DoubleRoom();
         Room suite = new SuiteRoom();
 
-        // Static availability
-        int singleAvailability = 10;
-        int doubleAvailability = 5;
-        int suiteAvailability = 2;
+        // Inventory initialization
+        RoomInventory inventory = new RoomInventory();
 
-        System.out.println("=== Hotel Room Details ===\n");
+        // Display room details
+        System.out.println("=== Room Details ===\n");
 
         single.displayDetails();
-        System.out.println("Available: " + singleAvailability + "\n");
+        System.out.println();
 
         doubleRoom.displayDetails();
-        System.out.println("Available: " + doubleAvailability + "\n");
+        System.out.println();
 
         suite.displayDetails();
-        System.out.println("Available: " + suiteAvailability + "\n");
+        System.out.println();
+
+        // Display inventory
+        inventory.displayInventory();
+
+        // Update example
+        System.out.println("Updating Single Room availability to 8...\n");
+        inventory.updateAvailability("Single Room", 8);
+
+        // Display updated inventory
+        inventory.displayInventory();
 
         System.out.println("=== End of Program ===");
     }
